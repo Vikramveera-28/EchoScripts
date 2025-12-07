@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="UTF-8">
+    <title>Audio Capture</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
+    </style>
+</head>
+
+<body>
+    <script>
+        const { ipcRenderer } = require('electron');
+
+        let mediaRecorder = null;
+        let audioContext = null;
+        let audioWorkletNode = null;
+        let stream = null;
+
+        // Initialize audio capture
+        async function startCapture() {
+            try {
+                // Request microphone access
+                stream = await navigator.mediaDevices.getUserMedia({
+                    audio: {
+                        channelCount: 1,
+                        sampleRate: 16000,
+                        echoCancellation: true,
+                        noiseSuppression: true,
+                        autoGainControl: true
+                    }
+                });
+
+                // Create audio context
+                audioContext = new AudioContext({ sampleRate: 16000 });
+                const source = audioContext.createMediaStreamSource(stream);
+
+                // Create script processor for audio data
+                const processor = audioContext.createScriptProcessor(4096, 1, 1);
+
+                processor.onaudioprocess = (e) => {
+                    const float32Array = e.inputBuffer.getChannelData(0);
+
+                    // Convert Float32Array to Int16Array (PCM)
+                    const int16Array = new Int16Array(float32Array.length);
+                    for (let i = 0; i < float32Array.length; i++) {
+                        const s = Math.max(-1, Math.min(1, float32Array[i]));
+                        int16Array[i] = s < 0 ? s * 0x8000 : s * 0x7FFF;
+                    }
+
+                    // Send audio data to main process
+                    ipcRenderer.send('audio-data', Buffer.from(int16Array.buffer));
+                };
+
+                source.connect(processor);
+                processor.connect(audioContext.destination);
+
+                console.log('Audio capture started');
+                ipcRenderer.send('audio-started');
+            } catch (error) {
+                console.error('Error starting audio capture:', error);
+                ipcRenderer.send('audio-error', error.message);
+            }
+        }
+
+        function stopCapture() {
+            try {
+                if (audioContext) {
+                    audioContext.close();
+                    audioContext = null;
+                }
+
+                if (stream) {
+                    stream.getTracks().forEach(track => track.stop());
+                    stream = null;
+                }
+
+                console.log('Audio capture stopped');
+                ipcRenderer.send('audio-stopped');
+            } catch (error) {
+                console.error('Error stopping audio capture:', error);
+            }
+        }
+
+        // Listen for commands from main process
+        ipcRenderer.on('start-capture', startCapture);
+        ipcRenderer.on('stop-capture', stopCapture);
+
+        console.log('Audio capture renderer loaded');
+    </script>
+</body>
+
+</html>
