@@ -1,6 +1,6 @@
-# VocalKey (formerly Deepgram Speech Typer)
+# EchoScript (formerly Deepgram Speech Typer)
 
-A Windows desktop application that enables voice-to-text typing in any application using Deepgram's live streaming API.
+A cross-platform desktop application (Windows & Linux) that enables voice-to-text typing in any application using Deepgram's live streaming API.
 
 ## Features
 
@@ -13,10 +13,20 @@ A Windows desktop application that enables voice-to-text typing in any applicati
 
 ## Prerequisites
 
-- Windows 10/11
+### General
 - Node.js 20.x or higher
-- Windows Build Tools (for native modules)
 - Deepgram API Key ([Get one here](https://deepgram.com))
+
+### Windows
+- Windows 10/11
+- Windows Build Tools (often included with Node.js or Visual Studio)
+
+### Linux
+- Ubuntu/Debian based distribution (recommended)
+- System dependencies for native modules (`nut.js`, `robotjs`):
+  ```bash
+  sudo apt-get install build-essential libxtst-dev libpng++-dev python3
+  ```
 
 ## Installation
 
@@ -43,7 +53,7 @@ A Windows desktop application that enables voice-to-text typing in any applicati
    ```
 
 2. **Activate Speech Recognition**:
-   - Press `Ctrl+Shift+S` while in any text field
+   - Press `Ctrl+Shift`+S while in any text field
    - Start speaking
    - Text automatically types where your cursor is
 
@@ -60,7 +70,10 @@ A Windows desktop application that enables voice-to-text typing in any applicati
 npm run build
 ```
 
-The installer will be created in the `dist/` folder.
+The installer/package will be created in the `dist/` folder.
+
+- **Windows**: Generates an NSIS installer (`.exe`)
+- **Linux**: Generates an AppImage and Debian package (`.deb`)
 
 ## Configuration
 
