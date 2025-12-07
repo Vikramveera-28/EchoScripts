@@ -4,4 +4,5 @@ dist/
 .DS_Store
 .env
 config.json
+config.js
 *.rar

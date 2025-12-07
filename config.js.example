@@ -1,5 +1,5 @@
 module.exports = {
-    deepgramApiKey: '516743421ba047c58e6444150833a5dc53d08bb4',
+    deepgramApiKey: 'your_deepgram_api_key',
     hotkey: 'CommandOrControl+Shift+S',
     autoLaunch: false,
     language: 'en-US',
